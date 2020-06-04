@@ -84,7 +84,6 @@ const CreatePoint = () => {
     navigator.geolocation.getCurrentPosition(position => {
       const {latitude, longitude} = position.coords;
 
-      console.log([latitude, longitude]);
       setInitialPosition([latitude, longitude]);
     });
   },[]);
