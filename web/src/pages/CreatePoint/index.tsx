@@ -25,13 +25,6 @@ interface IBGECityResponse{
   nome:string
 }
 
-
-interface Cidade{
-  id: number;
-  title: string;
-  image_url: string;
-}
-
 const CreatePoint = () => {
   const [items, setItems] = useState<Item[]>([]);
   const [ufs, setUfs] = useState<string[]>([]);

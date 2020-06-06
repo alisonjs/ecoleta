@@ -3,7 +3,7 @@ import { View, StyleSheet, Text, ScrollView, Image, Alert } from 'react-native';
 import Constants from 'expo-constants';
 import { Feather as Icons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import MapView, { Marker } from 'react-native-maps';
 import { SvgUri } from 'react-native-svg';
 import * as Location from 'expo-location';
@@ -24,7 +24,14 @@ interface Point{
   longitude: number,
 }
 
+interface Params{
+  uf: string,
+  city: string,
+}
+
 const Points = () => {
+    const route = useRoute();
+    const routesParams = route.params as Params;
     const navigation = useNavigation();
     const [items, setItems] = useState<Item[]>([]);
     const [selectedItems, setSelectedItems] = useState<number[]>([]);
@@ -33,13 +40,13 @@ const Points = () => {
 
     useEffect(() => {
       api.get('points',{params:{
-        city:'Natal',
-        uf:'RN',
-        items: [1,5]
+        city: routesParams.city,
+        uf: routesParams.uf,
+        items: selectedItems
       }}).then(response => {
         setPoints(response.data);
       });
-    },[]);
+    },[selectedItems]);
 
     useEffect(() => {
       api.get('items').then(response => {

@@ -1,17 +1,70 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { RectButton } from 'react-native-gesture-handler';
 import { View, ImageBackground, Image, StyleSheet, Text} from 'react-native';
 import { Feather as Icon} from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import RNPickerSelect from 'react-native-picker-select';
+import axios from 'axios';
+
+interface IBGEUFResponse{
+  sigla:string
+}
+
+interface IBGECityResponse{
+  nome:string
+}
+
+interface PickerItems{
+  label:string,
+  value:string,
+}
 
 const Home = () => {
   const navigation = useNavigation();
+  const [ufs, setUfs] = useState<PickerItems[]>([]);
+  const [cities, setCities] = useState<PickerItems[]>([]);
+  const [selectedUf, setSelectedUf] = useState('0');
+  const [selectedCity, setSelectedCity] = useState('');
   
   function handleNavigateToPoints(){
-    navigation.navigate('Points');
+    navigation.navigate('Points', {
+      uf:selectedUf,
+      city:selectedCity
+    });
   }
 
-    return (
+  // Selecionar UF
+  function handleSelectUf(uf:string){
+    setSelectedUf(uf);
+  }
+
+  // Selecionar Cidade
+  function handleSelectCity(city:string){
+    setSelectedCity(city);
+  }
+
+  // Buscar estados
+  useEffect(() => {
+    axios.get<IBGEUFResponse[]>('https://servicodados.ibge.gov.br/api/v1/localidades/estados')
+    .then(response => {
+      const ufInitials = response.data.map(uf => ({label: uf.sigla, value: uf.sigla,}));
+      setUfs(ufInitials);
+    })
+  }, []);
+
+  //Buscar Cidades
+  useEffect(() => {
+    if(selectedUf === '0'){
+      return;
+    }
+    axios.get<IBGECityResponse[]>(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${selectedUf}/municipios`)
+    .then(response => {
+      const cityNames = response.data.map(city => ({label:city.nome, value:city.nome}));
+      setCities(cityNames);
+    })
+  }, [selectedUf]);
+
+  return (
     <ImageBackground 
     style={styles.container} 
     source={require('../../assets/home-background.png')}
@@ -24,6 +77,27 @@ const Home = () => {
         </View>
 
         <View style={styles.footer} >
+          <View style={styles.input}>
+            <RNPickerSelect 
+              onValueChange={(value) => handleSelectUf(value)}
+              placeholder={{label: 'Escolha uma UF'}}
+              style={{
+                inputAndroid: styles.input
+              }}
+              items={ufs}
+            />
+          </View>
+          <View style={styles.input}>
+            <RNPickerSelect
+              onValueChange={(value) => handleSelectCity(value)}
+              placeholder={{label: 'Escolha uma cidade'}}
+              style={{
+                inputAndroid: styles.input
+              }}
+              items={cities}
+            />
+          </View>
+
           <RectButton style={styles.button} onPress={handleNavigateToPoints}>
             <View style={styles.buttonIcon}> 
               <Text>
