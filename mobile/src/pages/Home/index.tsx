@@ -45,7 +45,7 @@ const Home = () => {
 
   // Buscar estados
   useEffect(() => {
-    axios.get<IBGEUFResponse[]>('https://servicodados.ibge.gov.br/api/v1/localidades/estados')
+    axios.get<IBGEUFResponse[]>('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome')
     .then(response => {
       const ufInitials = response.data.map(uf => ({label: uf.sigla, value: uf.sigla,}));
       setUfs(ufInitials);
@@ -57,7 +57,7 @@ const Home = () => {
     if(selectedUf === '0'){
       return;
     }
-    axios.get<IBGECityResponse[]>(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${selectedUf}/municipios`)
+    axios.get<IBGECityResponse[]>(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${selectedUf}/municipios?orderBy=nome`)
     .then(response => {
       const cityNames = response.data.map(city => ({label:city.nome, value:city.nome}));
       setCities(cityNames);
